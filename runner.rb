@@ -15,7 +15,7 @@ class Contact
         @id = id unless @id
     end
     def to_s
-        "#{@id}, #{@first_name}, #{@last_name}, #{@email}, #{@notes}"
+        "id: #{@id}\nname: #{@last_name}, #{@first_name}\ne-mail: #{@email}\nNotes: #{@notes}"
     end
 end
 class Rolodex
@@ -34,6 +34,13 @@ class Rolodex
     end
     def remove_contact(id)
         @contacts.reject! { |contact| contact.id == id }
+    end
+    def print_all
+        @contacts.each do |c|
+            puts "---------------------"
+            puts c
+        end
+        puts "---------------------"
     end
 end
 class CRM
@@ -104,13 +111,27 @@ class CRM
     end
     def delete_contact
         id = take_id
-
+        @rolodex.remove_contact(id)
+        main_prompt
     end
     def display_all
-        puts "display all called."
+        @rolodex.print_all
+        main_prompt
     end
     def display_attribute
-        puts "display_attribute called."
+        id = take_id.to_i
+        contact = @rolodex.find_contact(id)
+        case select_attribute
+        when 1
+            puts "First Name: #{contact.first_name}"
+        when 2
+            puts "Last Name: #{contact.last_name}"
+        when 3
+            puts "E-Mail: #{contact.email}"
+        when 4
+            puts "Notes: #{contact.notes}"
+        end
+        main_prompt
     end
     def take_id
         puts "Please enter contact ID"
