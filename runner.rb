@@ -1,5 +1,44 @@
-class Runner
+class Contact
+    attr_accessor :first_name
+    attr_accessor :last_name
+    attr_accessor :email
+    attr_accessor :notes
+    attr_reader :id
+    def initialize(fn, ln, email, notes)
+        @first_name = fn
+        @last_name = ln
+        @email = email
+        @notes = notes
+        @id = nil
+    end
+    def id=(id)
+        @id = id unless @id
+    end
+    def to_s
+        "#{@id}, #{@first_name}, #{@last_name}, #{@email}, #{@notes}"
+    end
+end
+class Rolodex
     def initialize
+        @contacts = []
+        @id = 1000
+    end
+    def add_contact(contact)
+        contact.id = @id
+        @contacts << contact
+        @id += 1
+    end
+    def find_contact(id)
+        selection = @contacts.find { |contact| contact.id == id }
+        selection
+    end
+    def remove_contact(id)
+        @contacts.reject! { |contact| contact.id == id }
+    end
+end
+class CRM
+    def initialize
+        @rolodex = Rolodex.new
     end
     def main_prompt
         puts "[1] Add a new contact"
@@ -37,12 +76,35 @@ class Runner
         email = gets.chomp
         print "Notes: "
         notes = gets.chomp
+        @rolodex.add_contact(Contact.new(first_name, last_name, email, notes))
+        main_prompt
     end
     def modify_contact
-        puts "modify called."
+        id = take_id.to_i
+        contact = @rolodex.find_contact(id)
+        case select_attribute
+        when 1
+            puts "Please enter new first name. (Current Value: #{contact.first_name})"
+            input = gets.chomp
+            contact.first_name = input unless input.upcase == "NO"
+        when 2
+            puts "Please enter new last name. (Current Value: #{contact.last_name})"
+            input = gets.chomp
+            contact.last_name = input unless input.upcase == "NO"
+        when 3
+            puts "Please enter new E-Mail. (Current Value: #{contact.email})"
+            input = gets.chomp
+            contact.email = input unless input.upcase == "NO"
+        when 4
+            puts "Please enter new note. (Current Value: #{contact.notes})"
+            input = gets.chomp
+            contact.notes = input unless input.upcase == "NO"
+        end
+        main_prompt
     end
     def delete_contact
-        puts "delete called."
+        id = take_id
+
     end
     def display_all
         puts "display all called."
@@ -50,6 +112,30 @@ class Runner
     def display_attribute
         puts "display_attribute called."
     end
+    def take_id
+        puts "Please enter contact ID"
+        request_id = gets.chomp
+        puts "is #{request_id} correct? (Y/N)"
+        case gets.chomp.upcase
+        when "Y" then return request_id
+        when "N" then main_prompt
+        end
+    end
+    def select_attribute
+        puts "Select an attribute"
+        puts "[1] First Name"
+        puts "[2] Last Name"
+        puts "[3] E-Mail"
+        puts "[4] Notes"
+        puts "[5] Cancel"
+        input = gets.chomp.to_i
+        if input > 0 && input <= 5
+            return input
+        else
+            puts "please try again."
+            select_attribute
+        end
+    end
 end
-test = Runner.new
+test = CRM.new
 test.main_prompt
